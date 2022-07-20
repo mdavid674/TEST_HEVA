@@ -206,9 +206,17 @@ print("Ratings frequencies")
 activity_1_4(df_ratings)
 
 
+# ## Code quality check
+
+# In[29]:
+
+
+get_ipython().system('flake8-nb result.ipynb')
+
+
 # ## Safe Notebook versioning
 
-# In[27]:
+# In[31]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
