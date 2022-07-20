@@ -10,14 +10,14 @@
 
 # ### 1. Importing packages
 
-# In[25]:
+# In[33]:
 
 
 # Import necessary modules
 
 from pyspark.sql import SparkSession
 import matplotlib.pyplot as plt
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, when
 
 
 # ### 2. Settings
@@ -206,9 +206,43 @@ print("Ratings frequencies")
 activity_1_4(df_ratings)
 
 
+# ### 2. Data selection and enrichment
+# 
+# - 2.1 In order to set up a certain statistical model, we must transform the `rating` note into two modalities: did the user like the film or not?
+#      Create a new `liked` column in the `ratings` table with the following values: `0` for ratings [0-6] and `1` for ratings [7-10].
+
+# In[34]:
+
+
+def activity_2_1(df_ratings):
+    """ Added a liked column.
+        Depending on the rating column,
+        the liked column takes the value 0 or 1
+
+    Args:
+        df_ratings (Dataframe): Ratings Dataframe
+
+    Returns:
+        Dataframe: Updated ratings Dataframe
+    """
+
+    df_ratings = df_ratings        .withColumn(
+            'liked',
+            when(df_ratings.rating < 7, 0)
+            .when(df_ratings.rating >= 7, 1))
+
+    df_ratings.show()
+
+    return df_ratings
+
+
+print("Updated ratings Dataframe")
+df_ratings = activity_2_1(df_ratings)
+
+
 # ## Code quality check
 
-# In[29]:
+# In[35]:
 
 
 get_ipython().system('flake8-nb result.ipynb')
@@ -216,7 +250,7 @@ get_ipython().system('flake8-nb result.ipynb')
 
 # ## Safe Notebook versioning
 
-# In[31]:
+# In[36]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
