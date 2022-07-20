@@ -100,9 +100,29 @@ preview_data(df_movies, df_ratings)
 # 
 # - 1.1 How many films are in the database?
 
+# In[13]:
+
+
+def activity_1_1(df_movies):
+    """Counting the number of distinct film titles
+
+    Args:
+        df_movies (Dataframe): Movies Dataframe
+
+    Return:
+        int: Number of movies
+    """
+
+    return df_movies        .select("title")        .distinct()        .count()
+
+
+result_1_1 = activity_1_1(df_movies)
+print("There are", result_1_1, "movies in the database")
+
+
 # ## Safe Notebook versioning
 
-# In[ ]:
+# In[14]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
