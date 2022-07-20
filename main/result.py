@@ -10,12 +10,13 @@
 
 # ### 1. Importing packages
 
-# In[1]:
+# In[20]:
 
 
 # Import necessary modules
 
 from pyspark.sql import SparkSession
+import matplotlib.pyplot as plt
 
 
 # ### 2. Settings
@@ -142,9 +143,42 @@ result_1_2 = activity_1_2(df_ratings)
 print("There are", result_1_2, "user id in the database")
 
 
+# - 1.3 What is the distribution of the notes provided?
+#      **Bonus**: create a histogram.
+
+# In[22]:
+
+
+def activity_1_3(df_ratings):
+    """ Display rating distribution histogramme
+        Counting the number of voters per rating
+        Sorting based on ratings
+
+    Args:
+        df_ratings (Dataframe): Ratings Dataframe
+
+    """
+
+    # Creation of the histogram
+    print("Converting Dataframe to Pandas...")
+    plt.hist(
+        df_ratings.select("rating").toPandas().squeeze(),
+        bins=11)  # [0 to 10] => 11 values
+    plt.xlabel('Rating')
+    plt.ylabel('Number of rating')
+    plt.title('Histogram of rating')
+    plt.show()
+
+    print("Ratings distribution")
+    df_ratings        .groupBy("rating")        .count()        .orderBy("rating")        .show()
+
+
+activity_1_3(df_ratings)
+
+
 # ## Safe Notebook versioning
 
-# In[16]:
+# In[23]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
