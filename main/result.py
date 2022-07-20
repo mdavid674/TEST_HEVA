@@ -10,14 +10,14 @@
 
 # ### 1. Importing packages
 
-# In[33]:
+# In[42]:
 
 
 # Import necessary modules
 
 from pyspark.sql import SparkSession
 import matplotlib.pyplot as plt
-from pyspark.sql.functions import col, when
+from pyspark.sql.functions import col, when, explode, split,    desc
 
 
 # ### 2. Settings
@@ -240,9 +240,54 @@ print("Updated ratings Dataframe")
 df_ratings = activity_2_1(df_ratings)
 
 
+# - 2.2 Which genres are rated highest by users? We want to get the **top 10** movie genres liked by users (using the new `liked` column).
+
+# In[43]:
+
+
+def activity_2_2(df_movies, df_ratings):
+    """ Separation of genres in an array with the split function.
+        Extract genre arrays with the explode function alias explode_genre.
+        Selection of the movie_id and explode_genre column.
+        Joining with ratings table on movie_id columns.
+        Sum of the liked column by grouping on the explode_genre column.
+        Renamed sum(liked) column to sum_liked.
+        Rename explode_genre column to genre.
+        Sort in descending order based on the sum_liked column.
+        Limitation to the first 10 records.
+
+    Args:
+        df_movies (Dataframe): Movies Dataframe
+        df_ratings (Dataframe): Ratings Dataframe
+    """
+
+    df_movies.select(
+        "movie_id",
+        explode(
+            split(
+                col("genre"),
+                "\|"))
+        .alias("explode_genre"))\
+        .join(
+            df_ratings,
+            df_ratings.movie_id == df_movies.movie_id,
+            "inner")\
+        .groupBy("explode_genre")\
+        .sum("liked")\
+        .withColumnRenamed("sum(liked)", "sum_liked")\
+        .withColumnRenamed("explode_genre", "genre")\
+        .sort(desc("sum_liked"))\
+        .limit(10)\
+        .show()
+
+
+print("Top 10 genres")
+activity_2_2(df_movies, df_ratings)
+
+
 # ## Code quality check
 
-# In[35]:
+# In[44]:
 
 
 get_ipython().system('flake8-nb result.ipynb')
@@ -250,7 +295,7 @@ get_ipython().system('flake8-nb result.ipynb')
 
 # ## Safe Notebook versioning
 
-# In[36]:
+# In[45]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
