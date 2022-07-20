@@ -10,19 +10,20 @@
 
 # ### 1. Importing packages
 
-# In[1]:
+# In[14]:
 
 
 # Import necessary modules
 
 from pyspark.sql import SparkSession
 import matplotlib.pyplot as plt
-from pyspark.sql.functions import col, when, explode, split,    desc
+from pyspark.sql.functions import col, when, explode, split,    desc, from_unixtime, year
+from pyspark.sql.types import DateType
 
 
 # ### 2. Settings
 
-# In[7]:
+# In[3]:
 
 
 # Definition of necessary parameters
@@ -31,7 +32,7 @@ data_path = "../sources/data/movies.sqlite"
 
 # ### 3. Reading data
 
-# In[9]:
+# In[4]:
 
 
 def read_data(data_path):
@@ -73,7 +74,7 @@ df_movies, df_ratings = read_data(data_path)
 
 # ### 4. Data overview
 
-# In[11]:
+# In[5]:
 
 
 def preview_data(df_movies, df_ratings):
@@ -102,7 +103,7 @@ preview_data(df_movies, df_ratings)
 # 
 # - 1.1 How many films are in the database?
 
-# In[13]:
+# In[6]:
 
 
 def activity_1_1(df_movies):
@@ -124,7 +125,7 @@ print("There are", result_1_1, "movies in the database")
 
 # - 1.2 How many different users are in the database?
 
-# In[15]:
+# In[7]:
 
 
 def activity_1_2(df_ratings):
@@ -147,7 +148,7 @@ print("There are", result_1_2, "user id in the database")
 # - 1.3 What is the distribution of the notes provided?
 #      **Bonus**: create a histogram.
 
-# In[22]:
+# In[8]:
 
 
 def activity_1_3(df_ratings):
@@ -179,7 +180,7 @@ activity_1_3(df_ratings)
 
 # - 1.4 Finally, we want to obtain a table of frequencies to express the distribution of notes as a percentage.
 
-# In[26]:
+# In[9]:
 
 
 def activity_1_4(df_ratings):
@@ -211,7 +212,7 @@ activity_1_4(df_ratings)
 # - 2.1 In order to set up a certain statistical model, we must transform the `rating` note into two modalities: did the user like the film or not?
 #      Create a new `liked` column in the `ratings` table with the following values: `0` for ratings [0-6] and `1` for ratings [7-10].
 
-# In[34]:
+# In[10]:
 
 
 def activity_2_1(df_ratings):
@@ -242,7 +243,7 @@ df_ratings = activity_2_1(df_ratings)
 
 # - 2.2 Which genres are rated highest by users? We want to get the **top 10** movie genres liked by users (using the new `liked` column).
 
-# In[43]:
+# In[11]:
 
 
 def activity_2_2(df_movies, df_ratings):
@@ -290,7 +291,7 @@ activity_2_2(df_movies, df_ratings)
 # - 3.1 What are the titles of the films most popular with Internet users?
 #      We are looking for the **10** films with the best ratings on average by users, with a minimum of **5** ratings for the measurement to be relevant.
 
-# In[46]:
+# In[12]:
 
 
 def activity_3_1(df_movies, df_ratings):
@@ -335,9 +336,50 @@ print("Top 10 movies")
 activity_3_1(df_movies, df_ratings)
 
 
+# - 3.2 What is the most rated film in 2020?
+#      **Note**: the `rating_timestamp` column is provided in the database as [Unix time](https://fr.wikipedia.org/wiki/Heure_Unix).
+
+# In[15]:
+
+
+def activity_3_2(df_movies, df_ratings):
+    """ Adding a rating_year column,
+        which corresponds to the year in which the vote was recorded.
+        Join movies and ratings tables on movie_id columns.
+        Counting the number of votes per film title.
+        Sort descending in order of count.
+        Rename column count to rating_count.
+        Limitation to the first record.
+
+    Args:
+        df_movies (Dataframe): Movies Dataframe
+        df_ratings (Dataframe): Ratings Dataframe
+    """
+
+    df_ratings        .withColumn(
+            'rating_year',
+            year(
+                from_unixtime('rating_timestamp')
+                .cast(DateType())))\
+        .join(
+            df_movies,
+            df_ratings.movie_id == df_movies.movie_id)\
+        .filter(col("rating_year") == 2020)\
+        .groupBy("title")\
+        .count()\
+        .sort(desc("count"))\
+        .withColumnRenamed("count", "rating_count")\
+        .limit(1)\
+        .show()
+
+
+print("Best film of the year 2020")
+activity_3_2(df_movies, df_ratings)
+
+
 # ## Code quality check
 
-# In[2]:
+# In[16]:
 
 
 get_ipython().system('flake8-nb result.ipynb')
@@ -345,7 +387,7 @@ get_ipython().system('flake8-nb result.ipynb')
 
 # ## Safe Notebook versioning
 
-# In[3]:
+# In[ ]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
