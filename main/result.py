@@ -10,7 +10,7 @@
 
 # ### 1. Importing packages
 
-# In[42]:
+# In[1]:
 
 
 # Import necessary modules
@@ -251,7 +251,7 @@ def activity_2_2(df_movies, df_ratings):
         Selection of the movie_id and explode_genre column.
         Joining with ratings table on movie_id columns.
         Sum of the liked column by grouping on the explode_genre column.
-        Renamed sum(liked) column to sum_liked.
+        Rename sum(liked) column to sum_liked.
         Rename explode_genre column to genre.
         Sort in descending order based on the sum_liked column.
         Limitation to the first 10 records.
@@ -285,9 +285,59 @@ print("Top 10 genres")
 activity_2_2(df_movies, df_ratings)
 
 
+# ### 3. Advanced Selections
+# 
+# - 3.1 What are the titles of the films most popular with Internet users?
+#      We are looking for the **10** films with the best ratings on average by users, with a minimum of **5** ratings for the measurement to be relevant.
+
+# In[46]:
+
+
+def activity_3_1(df_movies, df_ratings):
+    """ Join between movies and ratings tables,
+        on movie_id columns, alias movies_ratings.
+        Join with subtable alias title_count,
+        which represents the number of votes per film.
+        Filter on movies that have at least 5 ratings.
+        Average ratings per movie title.
+        Renamed avg(rating) column to mean_rating.
+        Descending sort based on mean_rating column.
+        Limitation to the first 10 records.
+
+    Args:
+        df_movies (Dataframe): Movies Dataframe
+        df_ratings (Dataframe): Ratings Dataframe
+    """
+
+    df_movies.join(
+        df_ratings,
+        df_movies.movie_id == df_ratings.movie_id,
+        "inner").alias("movies_ratings")\
+        .join(
+            (df_movies.join(
+                df_ratings,
+                df_movies.movie_id == df_ratings.movie_id,
+                "inner")
+                .groupBy("title")
+                .count()).alias("title_count"),
+            col("movies_ratings.title") == col("title_count.title"),
+            "inner")\
+        .filter(col("count") >= 5)\
+        .groupBy("movies_ratings.title")\
+        .mean("rating")\
+        .withColumnRenamed("avg(rating)", "mean_rating")\
+        .sort(desc("mean_rating"))\
+        .limit(10)\
+        .show()
+
+
+print("Top 10 movies")
+activity_3_1(df_movies, df_ratings)
+
+
 # ## Code quality check
 
-# In[44]:
+# In[2]:
 
 
 get_ipython().system('flake8-nb result.ipynb')
@@ -295,7 +345,7 @@ get_ipython().system('flake8-nb result.ipynb')
 
 # ## Safe Notebook versioning
 
-# In[45]:
+# In[3]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
