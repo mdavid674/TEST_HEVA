@@ -120,9 +120,31 @@ result_1_1 = activity_1_1(df_movies)
 print("There are", result_1_1, "movies in the database")
 
 
+# - 1.2 How many different users are in the database?
+
+# In[15]:
+
+
+def activity_1_2(df_ratings):
+    """Counting the number of distinct user id
+
+    Args:
+        df_ratings (Dataframe): Ratings Dataframe
+
+    Return:
+        int: Number of user id
+    """
+
+    return df_ratings        .select("user_id")        .distinct()        .count()
+
+
+result_1_2 = activity_1_2(df_ratings)
+print("There are", result_1_2, "user id in the database")
+
+
 # ## Safe Notebook versioning
 
-# In[14]:
+# In[16]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
