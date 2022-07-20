@@ -10,13 +10,14 @@
 
 # ### 1. Importing packages
 
-# In[20]:
+# In[25]:
 
 
 # Import necessary modules
 
 from pyspark.sql import SparkSession
 import matplotlib.pyplot as plt
+from pyspark.sql.functions import col
 
 
 # ### 2. Settings
@@ -176,9 +177,38 @@ def activity_1_3(df_ratings):
 activity_1_3(df_ratings)
 
 
+# - 1.4 Finally, we want to obtain a table of frequencies to express the distribution of notes as a percentage.
+
+# In[26]:
+
+
+def activity_1_4(df_ratings):
+    """ Added column count which represents the number of voters
+        by notes.
+        Added a percentage column,
+        which is a transformation of the count column into a percentage.
+        Selection of rating and percentage columns.
+        Sort by rating column.
+
+    Args:
+        df_ratings (Dataframe): Rating Dataframe
+    """
+
+    df_ratings.groupBy("rating")        .count()        .withColumn(
+            'percentage',
+            (col("count")*100)/float(df_ratings.count()))\
+        .select("rating", "percentage")\
+        .orderBy("rating")\
+        .show()
+
+
+print("Ratings frequencies")
+activity_1_4(df_ratings)
+
+
 # ## Safe Notebook versioning
 
-# In[23]:
+# In[27]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
