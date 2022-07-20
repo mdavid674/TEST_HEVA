@@ -10,7 +10,7 @@
 
 # ### 1. Importing packages
 
-# In[14]:
+# In[1]:
 
 
 # Import necessary modules
@@ -19,11 +19,12 @@ from pyspark.sql import SparkSession
 import matplotlib.pyplot as plt
 from pyspark.sql.functions import col, when, explode, split,    desc, from_unixtime, year
 from pyspark.sql.types import DateType
+import time
 
 
 # ### 2. Settings
 
-# In[3]:
+# In[2]:
 
 
 # Definition of necessary parameters
@@ -32,7 +33,7 @@ data_path = "../sources/data/movies.sqlite"
 
 # ### 3. Reading data
 
-# In[4]:
+# In[3]:
 
 
 def read_data(data_path):
@@ -74,7 +75,7 @@ df_movies, df_ratings = read_data(data_path)
 
 # ### 4. Data overview
 
-# In[5]:
+# In[4]:
 
 
 def preview_data(df_movies, df_ratings):
@@ -103,7 +104,7 @@ preview_data(df_movies, df_ratings)
 # 
 # - 1.1 How many films are in the database?
 
-# In[6]:
+# In[5]:
 
 
 def activity_1_1(df_movies):
@@ -125,7 +126,7 @@ print("There are", result_1_1, "movies in the database")
 
 # - 1.2 How many different users are in the database?
 
-# In[7]:
+# In[6]:
 
 
 def activity_1_2(df_ratings):
@@ -148,7 +149,7 @@ print("There are", result_1_2, "user id in the database")
 # - 1.3 What is the distribution of the notes provided?
 #      **Bonus**: create a histogram.
 
-# In[8]:
+# In[7]:
 
 
 def activity_1_3(df_ratings):
@@ -180,7 +181,7 @@ activity_1_3(df_ratings)
 
 # - 1.4 Finally, we want to obtain a table of frequencies to express the distribution of notes as a percentage.
 
-# In[9]:
+# In[8]:
 
 
 def activity_1_4(df_ratings):
@@ -212,7 +213,7 @@ activity_1_4(df_ratings)
 # - 2.1 In order to set up a certain statistical model, we must transform the `rating` note into two modalities: did the user like the film or not?
 #      Create a new `liked` column in the `ratings` table with the following values: `0` for ratings [0-6] and `1` for ratings [7-10].
 
-# In[10]:
+# In[9]:
 
 
 def activity_2_1(df_ratings):
@@ -243,7 +244,7 @@ df_ratings = activity_2_1(df_ratings)
 
 # - 2.2 Which genres are rated highest by users? We want to get the **top 10** movie genres liked by users (using the new `liked` column).
 
-# In[11]:
+# In[10]:
 
 
 def activity_2_2(df_movies, df_ratings):
@@ -291,7 +292,7 @@ activity_2_2(df_movies, df_ratings)
 # - 3.1 What are the titles of the films most popular with Internet users?
 #      We are looking for the **10** films with the best ratings on average by users, with a minimum of **5** ratings for the measurement to be relevant.
 
-# In[12]:
+# In[11]:
 
 
 def activity_3_1(df_movies, df_ratings):
@@ -339,7 +340,7 @@ activity_3_1(df_movies, df_ratings)
 # - 3.2 What is the most rated film in 2020?
 #      **Note**: the `rating_timestamp` column is provided in the database as [Unix time](https://fr.wikipedia.org/wiki/Heure_Unix).
 
-# In[15]:
+# In[12]:
 
 
 def activity_3_2(df_movies, df_ratings):
@@ -377,18 +378,100 @@ print("Best film of the year 2020")
 activity_3_2(df_movies, df_ratings)
 
 
+# ### 4. Data management
+# 
+# - 4.1 In order to find the notes of a particular user more quickly, we want to set up an index on the user ids.
+#      Do you see a performance difference when looking up the ratings given by user `255`?
+
+# > Spark DataFrames are inherently unordered and do not support random access. (There is no built-in index concept like there is in pandas). Each row is treated as an independent collection of structured data, and this is what enables distributed parallel processing. So any executor can take any block of data and process it regardless of row order. [More info here](https://stackoverflow.com/questions/52792762/is-there-a-way-to-slice-dataframe-based-on-index-in-pyspark)
+# 
+# Instead we can order the pyspark ratings dataframe according to the 'user_id' column. Otherwise the koalas package can be an alternative. Because Koala supports indexes and can be used for big data. Also, pandas cannot be scaled for big data oriented use.
+# 
+# To check performance, I created the function time_test which print the execution time of a function.
+
+# In[13]:
+
+
+def time_test(func):
+    """ Check function time performance.
+
+    Args:
+        func (function): A function name
+    """
+    time_list = []
+
+    for i in range(100):
+        start_time = time.time()
+        # beginning of the code to test
+        func()
+        # end of the code to test
+        time_list.append(time.time() - start_time)
+
+    mean_time = sum(time_list) / len(time_list)
+    max_time = max(time_list)
+    min_time = min(time_list)
+
+    print("min:", min_time, "mean:", mean_time, "max:", max_time, end="\n\n")
+
+
+# In[14]:
+
+
+def activity_4_1(df_ratings):
+    """Compare time perfomance for indexed and not indexed Dataframe
+
+    Args:
+        df_ratings (Dataframe): Ratings Dataframe
+    """
+    df_ratings_indexed = df_ratings.orderBy("user_id")
+
+    print("Converting Dataframe to Pandas...")
+    pandas_df_ratings = df_ratings.toPandas()
+    pandas_df_ratings_indexed = pandas_df_ratings.set_index("user_id")
+
+    print("Execution time for unindexed PYSPARK dataframe")
+    time_test(lambda: df_ratings.filter(col("user_id") == 255))
+
+    print("Execution time for PYSPARK dataframe indexed by 'user_id'")
+    time_test(lambda: df_ratings_indexed.filter(col("user_id") == 255))
+
+    print("Execution time for unindexed PANDAS dataframe")
+    time_test(
+        lambda: pandas_df_ratings
+        .loc[pandas_df_ratings.loc[:, "user_id"] == 255])
+
+    print("Execution time for PANDAS dataframe indexed by 'user_id'")
+    time_test(lambda: pandas_df_ratings_indexed.loc[255])
+
+
+activity_4_1(df_ratings)
+
+
+# #### Ranking:
+# 1. Indexed Pandas Dataframe
+# 2. Unindexed Pandas Dataframe
+# 3. Indexed Pyspark Dataframe / Unindexed Pyspark Dataframe
+
 # ## Code quality check
 
-# In[16]:
+# In[15]:
 
 
 get_ipython().system('flake8-nb result.ipynb')
 
 
-# ## Safe Notebook versioning
+# ## Safe notebook versioning
+
+# In[16]:
+
+
+get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
+
+
+# ## PDF export
 
 # In[ ]:
 
 
-get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
+get_ipython().system('jupyter nbconvert --to webpdf --allow-chromium-download result.ipynb')
 

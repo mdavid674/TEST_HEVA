@@ -17,6 +17,11 @@ Create the python environment
 Enable Environment
 ```conda activate test_heva```
 
+```pip install nbconvert[webpdf]```
+
+conda install -c conda-forge pyppeteer
+
+
 ## JAVA
 ```sudo apt-get install openjdk11-jre```
 
