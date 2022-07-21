@@ -11,15 +11,16 @@
 ## ANACONDA
 Go to [this link](https://www.rosehosting.com/blog/how-to-install-anaconda-on-ubuntu-20-04/) to download and install anaconda.
 
-Create the python environment
+Create the python environment from the test_heva.yml file  
 ```conda env create -f test_heva.yml```
 
-Enable Environment
+Enable Environment  
 ```conda activate test_heva```
 
+You may need to install this following packages for notebook conversions  
+```pip install jupyter```
 ```pip install nbconvert[webpdf]```
 
-conda install -c conda-forge pyppeteer
 
 
 ## JAVA
@@ -27,7 +28,7 @@ conda install -c conda-forge pyppeteer
 
 ```sudo apt-get install openjdk11-jdk```
 
-Check that java is installed correctly
+Check that java is installed correctly  
 ```java --version```
 
 ## SPARK HADOOP
@@ -59,16 +60,16 @@ Save & close
 
 
 ## ASSISTANCE
-If pyspark is not installed correctly try in the test_heva environment:
+If pyspark is not installed correctly try in the test_heva environment:  
 ```conda install -c conda-forge pyspark=3.3.0```
 
-***If you have an installation problem on windows OS, install Ubuntu 20.04 OS ;)***
+***If you have an installation problem on Windows OS, install Ubuntu 20.04 OS ;)***
 
 For other problem, contact me: mdavid674@gmail.com
 
 
 ### DELETE
 
-sudo apt remove default-jdk default-jre
-sudo rm -r /usr/local/spark
-conda remove -n test_heva --all
+```sudo apt remove default-jdk default-jre```  
+```sudo rm -r /usr/local/spark```  
+```conda remove -n test_heva --all```
