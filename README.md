@@ -3,7 +3,7 @@
 ## Description of the folder content
 
 * sources: contain the data and the test instructions.
-* main:  contain the notebook result.ipynb, and there Python and PDF conversion.
+* main:  contain the notebook result.ipynb, and there Python and PDF conversion and the results in text file.
 * requirements.md: The OS and softwar requirements for notebook execution.
 * test_heva.yml: The Python Anaconda environment export.
 ## About my render
