@@ -1,0 +1,170 @@
+Movies table
++--------+--------------------+--------------------+
+|movie_id|               title|               genre|
++--------+--------------------+--------------------+
+|       8|Edison Kinetoscop...|   Documentary|Short|
+|      10|La sortie des usi...|   Documentary|Short|
+|      12|The Arrival of a ...|   Documentary|Short|
+|      25|The Oxford and Ca...|                null|
+|      91|Le manoir du diab...|        Short|Horror|
+|     131|Une nuit terrible...| Short|Comedy|Horror|
+|     417|A Trip to the Moo...|Short|Action|Adve...|
+|     439|The Great Train R...|Short|Action|Crim...|
+|     443|Hiawatha, the Mes...|                null|
+|     628|The Adventures of...|        Action|Short|
+|     833|The Country Docto...|         Short|Drama|
+|    1223| Frankenstein (1910)| Short|Horror|Sci-Fi|
+|    1740|The Lonedale Oper...| Short|Drama|Romance|
+|    2101|    Cleopatra (1912)|       Drama|History|
+|    2130|    L'inferno (1911)|Adventure|Drama|F...|
+|    2354|Max et Jane veule...|Short|Comedy|Romance|
+|    2844|Fantômas - À l'om...|         Crime|Drama|
+|    3740|      Cabiria (1914)|Adventure|Drama|H...|
+|    3863|Dough and Dynamit...|        Comedy|Short|
+|    4099|His Majesty, the ...|Family|Fantasy|Ad...|
++--------+--------------------+--------------------+
+only showing top 20 rows
+
+Ratings table
++-------+--------+------+----------------+
+|user_id|movie_id|rating|rating_timestamp|
++-------+--------+------+----------------+
+|      1|  114508|     8|      1381006850|
+|      2|  499549|     9|      1376753198|
+|      2| 1305591|     8|      1376742507|
+|      2| 1428538|     1|      1371307089|
+|      3|   75314|     1|      1595468524|
+|      3|  102926|     9|      1590148016|
+|      3|  114369|    10|      1597555347|
+|      3|  118715|     8|      1596006798|
+|      3|  120737|     8|      1599306720|
+|      3|  208092|     5|      1586466072|
+|      3|  358273|     9|      1579057827|
+|      3|  477348|     6|      1597289003|
+|      3|10039344|     5|      1578603053|
+|      3| 1051906|     6|      1589924916|
+|      3| 1568346|     6|      1597388722|
+|      3| 2278388|     8|      1597297732|
+|      3| 6199572|     3|      1589482483|
+|      3| 6723592|     8|      1599578941|
+|      3| 6751668|     9|      1578955697|
+|      3| 7131622|     8|      1579559244|
++-------+--------+------+----------------+
+only showing top 20 rows
+
+There are 37947 movies in the database
+There are 71707 user id in the database
+Converting Dataframe to Pandas...
+Ratings distribution
++------+------+
+|rating| count|
++------+------+
+|     0|   281|
+|     1| 10814|
+|     2|  9223|
+|     3| 15487|
+|     4| 28193|
+|     5| 69747|
+|     6|120370|
+|     7|206680|
+|     8|222146|
+|     9|130106|
+|    10|108351|
++------+------+
+
+Ratings frequencies
++------+-------------------+
+|rating|         percentage|
++------+-------------------+
+|     0|0.03049713587396543|
+|     1| 1.1736513428507551|
+|     2| 1.0009789472084811|
+|     3| 1.6808154565128208|
+|     4| 3.0598069455327663|
+|     5|  7.569693009969633|
+|     6| 13.063844288787255|
+|     7| 22.431131823598488|
+|     8|  24.10966813472571|
+|     9| 14.120499501843938|
+|    10| 11.759413413096187|
++------+-------------------+
+
+Updated ratings Dataframe
++-------+--------+------+----------------+-----+
+|user_id|movie_id|rating|rating_timestamp|liked|
++-------+--------+------+----------------+-----+
+|      1|  114508|     8|      1381006850|    1|
+|      2|  499549|     9|      1376753198|    1|
+|      2| 1305591|     8|      1376742507|    1|
+|      2| 1428538|     1|      1371307089|    0|
+|      3|   75314|     1|      1595468524|    0|
+|      3|  102926|     9|      1590148016|    1|
+|      3|  114369|    10|      1597555347|    1|
+|      3|  118715|     8|      1596006798|    1|
+|      3|  120737|     8|      1599306720|    1|
+|      3|  208092|     5|      1586466072|    0|
+|      3|  358273|     9|      1579057827|    1|
+|      3|  477348|     6|      1597289003|    0|
+|      3|10039344|     5|      1578603053|    0|
+|      3| 1051906|     6|      1589924916|    0|
+|      3| 1568346|     6|      1597388722|    0|
+|      3| 2278388|     8|      1597297732|    1|
+|      3| 6199572|     3|      1589482483|    0|
+|      3| 6723592|     8|      1599578941|    1|
+|      3| 6751668|     9|      1578955697|    1|
+|      3| 7131622|     8|      1579559244|    1|
++-------+--------+------+----------------+-----+
+only showing top 20 rows
+
+Top 10 genres
++---------+---------+
+|    genre|sum_liked|
++---------+---------+
+|    Drama|   397116|
+| Thriller|   220867|
+|   Action|   199212|
+|   Comedy|   169233|
+|Adventure|   169194|
+|    Crime|   136140|
+|   Sci-Fi|   131233|
+|  Romance|    92047|
+|  Mystery|    83036|
+|  Fantasy|    80337|
++---------+---------+
+
+Top 10 movies
++--------------------+-----------+
+|               title|mean_rating|
++--------------------+-----------+
+| Five Minutes (2017)|       10.0|
+|Crawl Bitch Crawl...|       10.0|
+|        Selam (2013)|       10.0|
+| Romeo Juliet (2009)|       10.0|
+|Third Contact (2011)|       10.0|
+|Let There Be Ligh...|       10.0|
+|Chasing Happiness...|       10.0|
+|Avengers: Age of ...|       10.0|
+|Make Like a Dog (...|       10.0|
+|Quiet Riot: Well ...|       10.0|
++--------------------+-----------+
+
+Best film of the year 2020
++-----------+------------+
+|      title|rating_count|
++-----------+------------+
+|1917 (2019)|        2858|
++-----------+------------+
+
+Converting Dataframe to Pandas...
+Execution time for unindexed PYSPARK dataframe
+min: 0.0039598941802978516 mean: 0.008981218338012695 max: 0.02070164680480957
+
+Execution time for PYSPARK dataframe indexed by 'user_id'
+min: 0.003888368606567383 mean: 0.009223527908325195 max: 0.0683746337890625
+
+Execution time for unindexed PANDAS dataframe
+min: 0.001016855239868164 mean: 0.00222933292388916 max: 0.021737098693847656
+
+Execution time for PANDAS dataframe indexed by 'user_id'
+min: 5.841255187988281e-05 mean: 0.0004265451431274414 max: 0.03124547004699707
+

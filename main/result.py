@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 from pyspark.sql.functions import col, when, explode, split,    desc, from_unixtime, year
 from pyspark.sql.types import DateType
 import time
+import sys
+import contextlib
 
 
 # ### 2. Settings
@@ -29,11 +31,30 @@ import time
 
 # Definition of necessary parameters
 data_path = "../sources/data/movies.sqlite"
+output_log_path = "result.log"
+
+
+# In[3]:
+
+
+class Logger:
+
+    def __init__(self, filename):
+        self.console = sys.stdout
+        self.file = open(filename, 'a')
+
+    def write(self, message):
+        self.console.write(message)
+        self.file.write(message)
+
+    def flush(self):
+        self.console.flush()
+        self.file.flush()
 
 
 # ### 3. Reading data
 
-# In[3]:
+# In[4]:
 
 
 def read_data(data_path):
@@ -70,12 +91,13 @@ def read_data(data_path):
     return df_movies, df_ratings
 
 
-df_movies, df_ratings = read_data(data_path)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    df_movies, df_ratings = read_data(data_path)
 
 
 # ### 4. Data overview
 
-# In[4]:
+# In[5]:
 
 
 def preview_data(df_movies, df_ratings):
@@ -95,7 +117,8 @@ def preview_data(df_movies, df_ratings):
     df_ratings.show()
 
 
-preview_data(df_movies, df_ratings)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    preview_data(df_movies, df_ratings)
 
 
 # ## Tasks
@@ -104,7 +127,7 @@ preview_data(df_movies, df_ratings)
 # 
 # - 1.1 How many films are in the database?
 
-# In[5]:
+# In[6]:
 
 
 def activity_1_1(df_movies):
@@ -120,13 +143,14 @@ def activity_1_1(df_movies):
     return df_movies        .select("title")        .distinct()        .count()
 
 
-result_1_1 = activity_1_1(df_movies)
-print("There are", result_1_1, "movies in the database")
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    result_1_1 = activity_1_1(df_movies)
+    print("There are", result_1_1, "movies in the database")
 
 
 # - 1.2 How many different users are in the database?
 
-# In[6]:
+# In[7]:
 
 
 def activity_1_2(df_ratings):
@@ -142,14 +166,15 @@ def activity_1_2(df_ratings):
     return df_ratings        .select("user_id")        .distinct()        .count()
 
 
-result_1_2 = activity_1_2(df_ratings)
-print("There are", result_1_2, "user id in the database")
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    result_1_2 = activity_1_2(df_ratings)
+    print("There are", result_1_2, "user id in the database")
 
 
 # - 1.3 What is the distribution of the notes provided?
 #      **Bonus**: create a histogram.
 
-# In[7]:
+# In[8]:
 
 
 def activity_1_3(df_ratings):
@@ -176,12 +201,13 @@ def activity_1_3(df_ratings):
     df_ratings        .groupBy("rating")        .count()        .orderBy("rating")        .show()
 
 
-activity_1_3(df_ratings)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    activity_1_3(df_ratings)
 
 
 # - 1.4 Finally, we want to obtain a table of frequencies to express the distribution of notes as a percentage.
 
-# In[8]:
+# In[9]:
 
 
 def activity_1_4(df_ratings):
@@ -204,8 +230,9 @@ def activity_1_4(df_ratings):
         .show()
 
 
-print("Ratings frequencies")
-activity_1_4(df_ratings)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    print("Ratings frequencies")
+    activity_1_4(df_ratings)
 
 
 # ### 2. Data selection and enrichment
@@ -213,7 +240,7 @@ activity_1_4(df_ratings)
 # - 2.1 In order to set up a certain statistical model, we must transform the `rating` note into two modalities: did the user like the film or not?
 #      Create a new `liked` column in the `ratings` table with the following values: `0` for ratings [0-6] and `1` for ratings [7-10].
 
-# In[9]:
+# In[10]:
 
 
 def activity_2_1(df_ratings):
@@ -238,13 +265,14 @@ def activity_2_1(df_ratings):
     return df_ratings
 
 
-print("Updated ratings Dataframe")
-df_ratings = activity_2_1(df_ratings)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    print("Updated ratings Dataframe")
+    df_ratings = activity_2_1(df_ratings)
 
 
 # - 2.2 Which genres are rated highest by users? We want to get the **top 10** movie genres liked by users (using the new `liked` column).
 
-# In[10]:
+# In[11]:
 
 
 def activity_2_2(df_movies, df_ratings):
@@ -283,8 +311,9 @@ def activity_2_2(df_movies, df_ratings):
         .show()
 
 
-print("Top 10 genres")
-activity_2_2(df_movies, df_ratings)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    print("Top 10 genres")
+    activity_2_2(df_movies, df_ratings)
 
 
 # ### 3. Advanced Selections
@@ -292,7 +321,7 @@ activity_2_2(df_movies, df_ratings)
 # - 3.1 What are the titles of the films most popular with Internet users?
 #      We are looking for the **10** films with the best ratings on average by users, with a minimum of **5** ratings for the measurement to be relevant.
 
-# In[11]:
+# In[12]:
 
 
 def activity_3_1(df_movies, df_ratings):
@@ -333,14 +362,15 @@ def activity_3_1(df_movies, df_ratings):
         .show()
 
 
-print("Top 10 movies")
-activity_3_1(df_movies, df_ratings)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    print("Top 10 movies")
+    activity_3_1(df_movies, df_ratings)
 
 
 # - 3.2 What is the most rated film in 2020?
 #      **Note**: the `rating_timestamp` column is provided in the database as [Unix time](https://fr.wikipedia.org/wiki/Heure_Unix).
 
-# In[12]:
+# In[13]:
 
 
 def activity_3_2(df_movies, df_ratings):
@@ -374,8 +404,9 @@ def activity_3_2(df_movies, df_ratings):
         .show()
 
 
-print("Best film of the year 2020")
-activity_3_2(df_movies, df_ratings)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    print("Best film of the year 2020")
+    activity_3_2(df_movies, df_ratings)
 
 
 # ### 4. Data management
@@ -389,7 +420,7 @@ activity_3_2(df_movies, df_ratings)
 # 
 # To check performance, I created the function time_test which print the execution time of a function.
 
-# In[13]:
+# In[14]:
 
 
 def time_test(func):
@@ -414,7 +445,7 @@ def time_test(func):
     print("min:", min_time, "mean:", mean_time, "max:", max_time, end="\n\n")
 
 
-# In[14]:
+# In[15]:
 
 
 def activity_4_1(df_ratings):
@@ -444,7 +475,8 @@ def activity_4_1(df_ratings):
     time_test(lambda: pandas_df_ratings_indexed.loc[255])
 
 
-activity_4_1(df_ratings)
+with contextlib.redirect_stdout(Logger(output_log_path)):
+    activity_4_1(df_ratings)
 
 
 # #### Ranking:
@@ -454,7 +486,7 @@ activity_4_1(df_ratings)
 
 # ## Code quality check
 
-# In[15]:
+# In[16]:
 
 
 get_ipython().system('flake8-nb result.ipynb')
@@ -462,7 +494,7 @@ get_ipython().system('flake8-nb result.ipynb')
 
 # ## Safe notebook versioning
 
-# In[16]:
+# In[17]:
 
 
 get_ipython().system('jupyter nbconvert result.ipynb --to="python"')
