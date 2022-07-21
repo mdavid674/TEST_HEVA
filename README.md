@@ -1,7 +1,5 @@
 # Instructions
 
-**First of all, read the README.md file;) **
-
 ## Description of the folder content
 
 * sources: contain the data and the test instructions.
